@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Hojas de Seguridad</title>
+
+<style>
+body{
+  font-family:Arial;
+  margin:20px;
+}
+
+.section{
+  margin-bottom:15px;
+}
+
+select{
+  padding:8px;
+  font-size:15px;
+  min-width:250px;
+}
+
+iframe{
+  margin-top:20px;
+  border:1px solid #ccc;
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>📄 Hojas de Seguridad</h2>
+
+<div class="section">
+<b>Insumos</b><br>
+<select id="insumos"></select>
+</div>
+
+<div class="section">
+<b>Pintura</b><br>
+<select id="pintura"></select>
+</div>
+
+<div class="section">
+<b>Combustibles</b><br>
+<select id="combustibles"></select>
+</div>
+
+<iframe id="visor" width="100%" height="600"></iframe>
+
+<script>
+const usuario = "produccionchiag-art";
+const repo = "hojasdeseguridad";
+
+const categorias = {
+  insumos: "pdf/insumos",
+  pintura: "pdf/pintura",
+  combustibles: "pdf/combustibles"
+};
+
+function cargarCategoria(cat, carpeta){
+
+  const api = `https://api.github.com/repos/${usuario}/${repo}/contents/${carpeta}`;
+
+  fetch(api)
+  .then(r => r.json())
+  .then(data => {
+
+    const select = document.getElementById(cat);
+    select.innerHTML = '<option value="">Seleccione</option>';
+
+    data.forEach(f => {
+
+      if(f.name.endsWith(".pdf")){
+        const opt = document.createElement("option");
+        opt.value = f.download_url;
+        opt.textContent = f.name.replace(".pdf","");
+        select.appendChild(opt);
+      }
+
+    });
+
+  });
+}
+
+for(const c in categorias){
+  cargarCategoria(c, categorias[c]);
+}
+
+document.querySelectorAll("select").forEach(s => {
+
+  s.addEventListener("change", function(){
+
+    if(this.value){
+      document.getElementById("visor").src =
+      "https://docs.google.com/gview?embedded=true&url=" + this.value;
+    }
+
+  });
+
+});
+</script>
+
+</body>
+</html>
